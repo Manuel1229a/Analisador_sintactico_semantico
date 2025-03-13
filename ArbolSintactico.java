@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 class Nodo {
@@ -31,99 +32,136 @@ class Nodo {
     }
 }
 
+class NodoSemantico {
+    private String valor;
+    private List<NodoSemantico> hijos;
+
+    public NodoSemantico(String valor) {
+        this.valor = valor;
+        this.hijos = new ArrayList<>();
+    }
+
+    public void agregarHijo(NodoSemantico hijo) {
+        hijos.add(hijo);
+    }
+
+    public void imprimirArbolSemantico(String prefijo) {
+        System.out.println(prefijo + valor);
+        for (NodoSemantico hijo : hijos) {
+            hijo.imprimirArbolSemantico(prefijo + "  ");
+        }
+    }
+}
 
 public class ArbolSintactico {
+    public static String limpiarSujeto(String sujeto) {
+        String[] partes = sujeto.split("\\s+");
+        return partes.length > 1 ? partes[1] : sujeto;
+    }
+
+    public static String normalizarVerbo(String verbo) {
+        Map<String, String> verbosSingulares = Map.of(
+            "comen", "come",
+            "corren", "corre",
+            "leen", "lee",
+            "duermen", "duerme"
+        );
+        return verbosSingulares.getOrDefault(verbo, verbo);
+    }
+
+    public static void visualizarArbolSemantico(String sujeto, String verbo, String complemento) {
+        NodoSemantico raiz = new NodoSemantico("Animal");
+        NodoSemantico mamifero = new NodoSemantico("Mamífero");
+        NodoSemantico felino = new NodoSemantico("Felino");
+        NodoSemantico nodoSujeto = new NodoSemantico(sujeto.substring(0, 1).toUpperCase() + sujeto.substring(1));
+
+        raiz.agregarHijo(mamifero);
+        mamifero.agregarHijo(felino);
+        felino.agregarHijo(nodoSujeto);
+
+        System.out.println("\n--- Árbol Semántico ---");
+        raiz.imprimirArbolSemantico("");
+    }
+
     public static void main(String[] args) {
-        // Listas de palabras (en singular)
-        List<String> sujetos = List.of("gato", "perro", "juan", "maria");
-        List<String> verbos = List.of("come", "corre", "lee", "duerme");
-        List<String> complementos = List.of("pescado", "libro", "parque", "pelota");
+        List<String> sujetos = List.of("gato", "perro", "juan", "maria", "gatos", "perros");
+        List<String> verbos = List.of("come", "corre", "lee", "duerme", "comen", "corren", "leen", "duermen");
+        List<String> complementos = List.of("pescado", "libro", "parque", "pelota", "comida", "revista");
         List<String> preposiciones = List.of("en", "con", "a", "sobre", "por");
-        // Incluir determinantes, tanto en singular como plural
         List<String> determinantes = List.of("el", "la", "un", "una", "su", "mi", "tu", "los", "las");
 
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingresa una oración (Ejemplo: 'El gato come pescado'): ");
+        System.out.print("Ingresa una oración: ");
         String oracion = scanner.nextLine().toLowerCase();
         String[] palabras = oracion.split("\\s+");
 
         String sujeto = "", verbo = "", complemento = "";
         boolean preposicionEncontrada = false;
 
-        // Procesar las palabras para extraer sujeto, verbo y complemento
         for (int i = 0; i < palabras.length; i++) {
             String palabra = palabras[i];
-            
-            // Si la palabra es un determinante seguido de un sujeto
+
             if (i < palabras.length - 1 && determinantes.contains(palabra)) {
                 String posibleSujeto = palabras[i + 1];
-                // Si el determinante es plural ("los", "las"), 
-                // convertimos el posible sujeto a singular (quitando la 's') para la comparación.
-                if ((palabra.equals("los") || palabra.equals("las")) && posibleSujeto.endsWith("s")) {
-                    String singular = posibleSujeto.substring(0, posibleSujeto.length() - 1);
-                    if (sujetos.contains(singular)) {
-                        sujeto = palabra + " " + singular; // Ejemplo: "los gato"
-                        i++; // Saltar el siguiente porque ya se usó
-                        continue;
-                    }
-                }
-                // Si el posible sujeto ya está en la lista (en singular)
                 if (sujetos.contains(posibleSujeto)) {
-                    sujeto = palabra + " " + posibleSujeto; // Ejemplo: "el gato"
-                    i++; // Saltar el siguiente
+                    sujeto = palabra + " " + posibleSujeto;
+                    i++;
                     continue;
                 }
-            }
-            // Si la palabra es un sujeto sin determinante
-            else if (sujetos.contains(palabra) && sujeto.isEmpty()) {
+            } else if (sujetos.contains(palabra) && sujeto.isEmpty()) {
                 sujeto = palabra;
                 continue;
-            }
-            // Si la palabra es un verbo (y ya se tiene sujeto)
-            else if (verbos.contains(palabra) && !sujeto.isEmpty() && verbo.isEmpty()) {
+            } else if (verbos.contains(palabra) && !sujeto.isEmpty() && verbo.isEmpty()) {
                 verbo = palabra;
                 continue;
-            }
-            // Si la palabra es una preposición para comenzar el complemento (después del verbo)
-            else if (preposiciones.contains(palabra) && !verbo.isEmpty()) {
+            } else if (preposiciones.contains(palabra) && !verbo.isEmpty()) {
                 preposicionEncontrada = true;
                 complemento = palabra;
                 continue;
-            }
-            // Si ya se encontró una preposición, se construye el complemento
-            else if (preposicionEncontrada) {
+            } else if (preposicionEncontrada && determinantes.contains(palabra)) {
                 complemento += " " + palabra;
                 continue;
-            }
-            // Si la palabra es un complemento sin preposición y aún no se ha asignado
-            else if (complementos.contains(palabra) && complemento.isEmpty() && !verbo.isEmpty()) {
+            } else if (preposicionEncontrada) {
+                complemento += " " + palabra;
+                continue;
+            } else if (complementos.contains(palabra) && complemento.isEmpty() && !verbo.isEmpty()) {
                 complemento = palabra;
                 continue;
             }
         }
 
-        // Validar que se hayan encontrado las tres partes
         if (!sujeto.isEmpty() && !verbo.isEmpty() && !complemento.isEmpty()) {
             Nodo raiz = new Nodo("Oracion");
             Nodo nodoSujeto = new Nodo("Sujeto");
-            nodoSujeto.agregarHijo(new Nodo("Determinante: " + sujeto.split(" ")[0]));
-            nodoSujeto.agregarHijo(new Nodo("Sujeto: " + sujeto.split(" ")[1]));
-            
+            String[] partesSujeto = sujeto.split("\\s+");
+            if (partesSujeto.length > 1) {
+                nodoSujeto.agregarHijo(new Nodo("Determinante: " + partesSujeto[0]));
+                nodoSujeto.agregarHijo(new Nodo("Sujeto: " + partesSujeto[1]));
+            } else {
+                nodoSujeto.agregarHijo(new Nodo("Sujeto: " + sujeto));
+            }
             Nodo nodoVerbo = new Nodo("Verbo: " + verbo);
             Nodo nodoComplemento = new Nodo("Complemento: " + complemento);
-            
+
             raiz.agregarHijo(nodoSujeto);
             raiz.agregarHijo(nodoVerbo);
             raiz.agregarHijo(nodoComplemento);
-            
+
+            System.out.println("\n--- Árbol Sintáctico ---");
             raiz.imprimirArbol("");
 
-            // Llamamos al procesamiento semántico con el sujeto limpio
-            RutinaSemantica.procesarArbol(raiz, sujeto.split(" ")[1]);  // Sujeto limpio es el segundo elemento
-        } else {
-            System.out.println("La oración no es válida. Asegúrate de incluir un sujeto, un verbo y un complemento.");
-        }
+            String sujetoLimpio = limpiarSujeto(sujeto);
+            String verboNormalizado = normalizarVerbo(verbo);
 
+            // ✅ Llamamos a la rutina semántica
+            RutinaSemantica.procesarArbol(raiz, sujetoLimpio, verboNormalizado, complemento);
+
+            // ✅ Visualización del árbol semántico
+            visualizarArbolSemantico(sujetoLimpio, verboNormalizado, complemento);
+
+        } else {
+            System.out.println("La oración no es válida.");
+        }
         scanner.close();
     }
 }
