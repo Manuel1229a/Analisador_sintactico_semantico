@@ -1,4 +1,5 @@
-import java.util.ArrayList;
+//Comentado para no interferir con el arbol avanzado
+/*import java.util.ArrayList;
 import java.util.List;
 
 class Nodo {
@@ -44,4 +45,4 @@ public class arbol_sintactico_sencillo {
         raiz.agregarHijo(predicado);
         raiz.imprimirArbol("");
     }
-}
+}*/
