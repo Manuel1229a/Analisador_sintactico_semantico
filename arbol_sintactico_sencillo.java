@@ -1,4 +1,6 @@
 //Comentado para no interferir con el arbol avanzado
+/*Hola profa, este es el arbol que útilizamos como base para ir complementando cada punto que nos solicito :3
+ */
 /*import java.util.ArrayList;
 import java.util.List;
 

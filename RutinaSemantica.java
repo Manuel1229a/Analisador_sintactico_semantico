@@ -11,9 +11,9 @@ public class RutinaSemantica {
         sujetoVerbo.put("maria", List.of("lee", "corre", "estudia"));
 
         if (sujetoVerbo.containsKey(sujetoLimpio) && sujetoVerbo.get(sujetoLimpio).contains(verbo)) {
-            System.out.println("✔ El sujeto y el verbo tienen sentido.");
+            System.out.println("El sujeto y el verbo tienen sentido.");
         } else {
-            System.out.println("❌ Error semántico: El sujeto no puede realizar la acción del verbo.");
+            System.out.println("Error semántico: El sujeto no puede realizar la acción del verbo.");
         }
 
         Map<String, List<String>> verboComplemento = new HashMap<>();
@@ -23,9 +23,9 @@ public class RutinaSemantica {
         verboComplemento.put("duerme", List.of("en la cama", "en el sofá"));
 
         if (verboComplemento.containsKey(verbo) && verboComplemento.get(verbo).contains(complemento)) {
-            System.out.println("✔ El complemento tiene sentido con el verbo.");
+            System.out.println("El complemento tiene sentido con el verbo.");
         } else {
-            System.out.println("❌ Error semántico: El complemento no tiene sentido con el verbo.");
+            System.out.println("Error semántico: El complemento no tiene sentido con el verbo.");
         }
     }
 }

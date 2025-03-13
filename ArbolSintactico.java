@@ -55,7 +55,7 @@ class NodoSemantico {
 
 public class ArbolSintactico {
 
-    // Nueva función para verificar concordancia
+    
     public static boolean verificarConcordancia(String sujeto, String verbo) {
         if (sujeto.endsWith("s")) {
             return verbo.endsWith("n");  // Plural
@@ -108,13 +108,19 @@ public class ArbolSintactico {
         List<String> determinantes = List.of("el", "la", "un", "una", "su", "mi", "tu", "los", "las");
     
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingresa una oración: ");
+        System.out.print("Ingresa una oración, por ejemplo: \n 'El gato come pescado'");
+        System.out.println("Palabras permitidas para formar una oración: ");
+        System.out.println("Sujeto: " + sujetos);
+        System.out.println("Verbos: " + verbos);
+        System.out.println("Complementos: " + complementos);
+        System.out.println("Preposiciones: " + preposiciones);
+        System.out.println("Determinantes: " + determinantes);
         String oracion = scanner.nextLine().toLowerCase().trim();
     
-        // Detectar si la oración es interrogativa
+        
         boolean esInterrogativa = oracion.endsWith("?");
     
-        // Eliminar los signos de puntuación (por si la oración contiene "¿" o "?")
+        
         oracion = oracion.replace("¿", "").replace("?", "");
     
         String[] palabras = oracion.split("\\s+");
@@ -179,7 +185,7 @@ public class ArbolSintactico {
     
             RutinaSemantica.procesarArbol(raiz, sujetoLimpio, verboNormalizado, complemento);
     
-            // Si es una pregunta, mostrar un mensaje especial
+            
             if (esInterrogativa) {
                 System.out.println("\n--- Oración Interrogativa Detectada ---");
             }
