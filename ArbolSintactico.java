@@ -54,6 +54,16 @@ class NodoSemantico {
 }
 
 public class ArbolSintactico {
+
+    // Nueva función para verificar concordancia
+    public static boolean verificarConcordancia(String sujeto, String verbo) {
+        if (sujeto.endsWith("s")) {
+            return verbo.endsWith("n");  // Plural
+        } else {
+            return !verbo.endsWith("n");  // Singular
+        }
+    }
+
     public static String limpiarSujeto(String sujeto) {
         String[] partes = sujeto.split("\\s+");
         return partes.length > 1 ? partes[1] : sujeto;
@@ -70,16 +80,23 @@ public class ArbolSintactico {
     }
 
     public static void visualizarArbolSemantico(String sujeto, String verbo, String complemento) {
-        NodoSemantico raiz = new NodoSemantico("Animal");
-        NodoSemantico mamifero = new NodoSemantico("Mamífero");
-        NodoSemantico felino = new NodoSemantico("Felino");
+        List<String> personas = List.of("juan", "maria");
+        NodoSemantico raiz;
+
+        if (personas.contains(sujeto.toLowerCase())) {
+            raiz = new NodoSemantico("Persona");
+        } else {
+            raiz = new NodoSemantico("Animal");
+            NodoSemantico mamifero = new NodoSemantico("Mamífero");
+            NodoSemantico felino = new NodoSemantico("Felino");
+            raiz.agregarHijo(mamifero);
+            mamifero.agregarHijo(felino);
+        }
+
         NodoSemantico nodoSujeto = new NodoSemantico(sujeto.substring(0, 1).toUpperCase() + sujeto.substring(1));
+        raiz.agregarHijo(nodoSujeto);
 
-        raiz.agregarHijo(mamifero);
-        mamifero.agregarHijo(felino);
-        felino.agregarHijo(nodoSujeto);
-
-        System.out.println("\n--- Árbol Semántico ---");
+        System.out.println("\n--- Arbol Semántico ---");
         raiz.imprimirArbolSemantico("");
     }
 
@@ -89,18 +106,25 @@ public class ArbolSintactico {
         List<String> complementos = List.of("pescado", "libro", "parque", "pelota", "comida", "revista");
         List<String> preposiciones = List.of("en", "con", "a", "sobre", "por");
         List<String> determinantes = List.of("el", "la", "un", "una", "su", "mi", "tu", "los", "las");
-
+    
         Scanner scanner = new Scanner(System.in);
         System.out.print("Ingresa una oración: ");
-        String oracion = scanner.nextLine().toLowerCase();
+        String oracion = scanner.nextLine().toLowerCase().trim();
+    
+        // Detectar si la oración es interrogativa
+        boolean esInterrogativa = oracion.endsWith("?");
+    
+        // Eliminar los signos de puntuación (por si la oración contiene "¿" o "?")
+        oracion = oracion.replace("¿", "").replace("?", "");
+    
         String[] palabras = oracion.split("\\s+");
-
+    
         String sujeto = "", verbo = "", complemento = "";
         boolean preposicionEncontrada = false;
-
+    
         for (int i = 0; i < palabras.length; i++) {
             String palabra = palabras[i];
-
+    
             if (i < palabras.length - 1 && determinantes.contains(palabra)) {
                 String posibleSujeto = palabras[i + 1];
                 if (sujetos.contains(posibleSujeto)) {
@@ -129,7 +153,7 @@ public class ArbolSintactico {
                 continue;
             }
         }
-
+    
         if (!sujeto.isEmpty() && !verbo.isEmpty() && !complemento.isEmpty()) {
             Nodo raiz = new Nodo("Oracion");
             Nodo nodoSujeto = new Nodo("Sujeto");
@@ -142,26 +166,29 @@ public class ArbolSintactico {
             }
             Nodo nodoVerbo = new Nodo("Verbo: " + verbo);
             Nodo nodoComplemento = new Nodo("Complemento: " + complemento);
-
+    
             raiz.agregarHijo(nodoSujeto);
             raiz.agregarHijo(nodoVerbo);
             raiz.agregarHijo(nodoComplemento);
-
-            System.out.println("\n--- Árbol Sintáctico ---");
+    
+            System.out.println("\n--- Arbol Sintáctico ---");
             raiz.imprimirArbol("");
-
+    
             String sujetoLimpio = limpiarSujeto(sujeto);
             String verboNormalizado = normalizarVerbo(verbo);
-
-            // ✅ Llamamos a la rutina semántica
+    
             RutinaSemantica.procesarArbol(raiz, sujetoLimpio, verboNormalizado, complemento);
-
-            // ✅ Visualización del árbol semántico
+    
+            // Si es una pregunta, mostrar un mensaje especial
+            if (esInterrogativa) {
+                System.out.println("\n--- Oración Interrogativa Detectada ---");
+            }
+    
             visualizarArbolSemantico(sujetoLimpio, verboNormalizado, complemento);
-
+    
         } else {
             System.out.println("La oración no es válida.");
         }
         scanner.close();
     }
-}
+}    
